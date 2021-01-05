@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+
+<html lang="en-US">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>isometric-map</title>
+  <script src="../jsgame0.js"></script>
+  <style type="text/css" media="screen">
+body {
+  background-color: white;
+  color: black;
+}
+.hidden {
+  display: none;
+}
+#original {
+  margin-left: 1em;
+}
+  </style>
+</head>
+
+<body>
+<section id="imageLoader" class="hidden">
+  <img class="hidden" src="images/block.png" alt="block">
+</section>
+
+<main>
+<h1>isometric-map</h1>
+
+<canvas id="screen">
+The game screen appears here if your browser supports the Canvas API.
+</canvas>
+<section id="controls">
+  <button type="button" id="reset">Reset</button>
+  <button type="button" id="pause">Pause</button>
+</section>
+
+<h2>Attribution</h2>
+
+<p><a href="https://wireframe.raspberrypi.org/issues/15">Make an isometric game map, pages 38-39, by Mark Vanstone</a>.</p>
+
+<p>Licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/legalcode">Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported</a>.</p>
+
+<h2>Original Python code</h2>
+
+<pre id="original"><code>
+import pgzrun
+import numpy as np # easy handling of three dimensional lists
+WIDTH = 600 # Width of window
+HEIGHT = 400 # Height of window
+mapPositionX = 268 # start displaying the map from
+mapPositionY = -100 # these window co-ordinates
+mapWidth = mapHeight = 20 # the width and height of the map
+mapBlocks = np.zeros((mapWidth,mapHeight,3)) # make a blank map in a 3 dimensional list
+# draw the window
+def draw():
+    screen.fill((150, 255, 255))
+    drawMap()
+# Move the map with the arrow keys
+def update():
+    global mapPositionX, mapPositionY
+    if keyboard.left: mapPositionX -= 4
+    if keyboard.right: mapPositionX += 4
+    if keyboard.up: mapPositionY -= 4
+    if keyboard.down: mapPositionY += 4
+# Draw the map to the window by drawing the blocks layer by layer
+def drawMap():
+    for z in range(0, 3):
+        for x in range(0, mapWidth):
+            for y in range(0, mapHeight):
+                bx = (x*32) - (y*32) + mapPositionX
+                by = (y*16) + (x*16) - (z*32) + mapPositionY
+                # Only display blocks that are in the window
+                if -64 &lt;= bx &lt; WIDTH + 32 and -64 &lt;= by &lt; HEIGHT + 32:
+                    if mapBlocks[x][y][z] == 1: # 1 means a block is in this position
+                        # The next line needs an image called &quot;block.png&quot; to be in
+                        # a subdirectory called &quot;images&quot;
+                        screen.blit(&quot;block&quot;, (bx, by))
+# Make a three layer arch
+def makeArch(x,y):
+    for z in range(0, 3):
+        mapBlocks[x][y][z] = 1
+        mapBlocks[x][y+2][z] = 1
+    mapBlocks[x][y+1][2] = 1
+# Make a three layer pyramid
+def makePyramid(x,y):
+    for px in range(0, 5):
+        for py in range(0,5):
+            mapBlocks[px+x][py+y][0] = 1
+    for px in range(1, 4):
+        for py in range(1,4):
+            mapBlocks[px+x][py+y][1] = 1
+    mapBlocks[x+2][y+2][2] = 1
+# Map building section - make a border, some arches and some pyramids
+for x in range(0, mapWidth):
+    for y in range(0, mapHeight):
+        if x == 0 or x == mapWidth-1 or y == 0 or y == mapHeight-1:
+            mapBlocks[x][y][0] = 1
+        if x == 5 and (y == 4 or y == 13):
+            makeArch(x,y)
+        if x == 12 and y == 14:
+            makeArch(x,y)
+        if (x == 4 or x == 12) and y == 7:
+            makePyramid(x,y)
+# Let&#x27;s get this party started
+pgzrun.go()
+</code></pre>
+</main>
+
+<script>
+WIDTH = 600; // Width of window
+HEIGHT = 400; // Height of window
+var mapPositionX, mapPositionY, mapBlocks;
+mapWidth = mapHeight = 20; // the width and height of the map
+
+function reset() {
+  mapPositionX = 268; // start displaying the map from
+  mapPositionY = -100; // these window co-ordinates
+
+  // make a blank map in a 3 dimensional list
+  mapBlocks = [];
+  for (let x = 0; x < mapWidth; x++) {
+    let column = [];
+    for (let y = 0; y < mapHeight; y++) {
+      column.push((new Array(3)).fill(0));
+    }
+    mapBlocks.push(column);
+  }
+
+  // Map building section - make a border, some arches and some pyramids
+  for (let x = 0; x < mapWidth; x++) {
+    for (let y = 0; y < mapHeight; y++) {
+      if ((x === 0) || (x === (mapWidth - 1)) || (y === 0) || (y === (mapHeight - 1))) {
+        mapBlocks[x][y][0] = 1;
+      }
+      if ((x === 5) && ((y === 4) || (y === 13))) {
+        makeArch(x, y);
+      }
+      if ((x === 12) && (y === 14)) {
+        makeArch(x, y);
+      }
+      if (((x === 4) || (x === 12)) && (y === 7)) {
+        makePyramid(x, y);
+      }
+    }
+  }
+}
+
+// draw the window
+function draw() {
+  screen.fill([150, 255, 255]);
+  drawMap();
+}
+
+// Move the map with the arrow keys
+function update() {
+  if (keyboard[keys.LEFT]) {
+    mapPositionX -= 4;
+  }
+  if (keyboard[keys.RIGHT]) {
+    mapPositionX += 4;
+  }
+  if (keyboard[keys.UP]) {
+    mapPositionY -= 4;
+  }
+  if (keyboard[keys.DOWN]) {
+    mapPositionY += 4;
+  }
+}
+
+// Draw the map to the window by drawing the blocks layer by layer
+function drawMap() {
+  for (let z = 0; z < 3; z++) {
+    for (let x = 0; x < mapWidth; x++) {
+      for (let y = 0; y < mapHeight; y++) {
+        let bx = (x * 32) - (y * 32) + mapPositionX,
+            by = (y * 16) + (x * 16) - (z * 32) + mapPositionY;
+        // Only display blocks that are in the window
+        if ((-64 <= bx) && (bx < (WIDTH + 32)) && (-64 <= by) && (by < (HEIGHT + 32))) {
+          if (mapBlocks[x][y][z] === 1) { // 1 means a block is in this position
+            // The next line needs an image called "block.png" to be in
+            // a subdirectory called "images"
+            screen.blit("block", [bx, by]);
+          }
+        }
+      }
+    }
+  }
+}
+
+// Make a three layer arch
+function makeArch(x, y) {
+  for (let z = 0; z < 3; z++) {
+    mapBlocks[x][y][z] = 1;
+    mapBlocks[x][y+2][z] = 1;
+  }
+  mapBlocks[x][y+1][2] = 1;
+}
+
+// Make a three layer pyramid
+function makePyramid(x, y) {
+  for (let px = 0; px < 5; px++) {
+    for (let py = 0; py < 5; py++) {
+      mapBlocks[px+x][py+y][0] = 1;
+    }
+  }
+  for (let px = 1; px < 4; px++) {
+    for (let py = 1; py < 4; py++) {
+      mapBlocks[px+x][py+y][1] = 1;
+    }
+  }
+  mapBlocks[x+2][y+2][2] = 1;
+}
+
+window.addEventListener('load', (event) => {
+  images.LOAD('#imageLoader img');
+  reset();
+  screen.set_mode('#screen', '#reset', '#pause');
+});
+</script>
+</body>
+
+</html>
