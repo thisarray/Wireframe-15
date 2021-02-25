@@ -22,7 +22,7 @@ body {
 
 <body>
 <section id="imageLoader" class="hidden">
-  <img class="hidden" src="images/block.png" alt="block">
+  <img class="hidden" src="images/block.png" alt="block" data-name="block">
 </section>
 
 <main>
@@ -112,7 +112,8 @@ pgzrun.go()
 WIDTH = 600; // Width of window
 HEIGHT = 400; // Height of window
 var mapPositionX, mapPositionY, mapBlocks;
-mapWidth = mapHeight = 20; // the width and height of the map
+const mapWidth = 20;
+const mapHeight = 20; // the width and height of the map
 
 function reset() {
   mapPositionX = 268; // start displaying the map from
